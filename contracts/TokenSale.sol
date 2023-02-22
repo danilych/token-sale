@@ -6,11 +6,15 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 contract TokenSale is Ownable {
     IERC20 public token;
+
     uint256 public price;
 
-    constructor(address token_, uint256 price_) {
+    uint256 public maxAllocation;
+
+    constructor(address token_, uint256 price_, uint256 maxAllocation_) {
         token = IERC20(token_);
         price = price_;
+        maxAllocation = maxAllocation_;
     }
 
     function getTokensBalance() public view returns(uint256 balance) {
@@ -19,6 +23,10 @@ contract TokenSale is Ownable {
 
     function changeToken(address token_) external onlyOwner {
         token = IERC20(token_);
+    }
+
+    function changeMaxAllocation(uint256 maxAllocation_) external onlyOwner {
+        maxAllocation = maxAllocation_;
     }
 
     function changeRate(uint256 price_) external onlyOwner {
@@ -38,6 +46,7 @@ contract TokenSale is Ownable {
     function buy() external payable {
         require(msg.value >= price, "TokenSale: Not enought ether");
         uint256 tokensAmount = msg.value / price;
+        require(tokensAmount <= maxAllocation, "TokenSale: you try buy more than max allocation");
         require(getTokensBalance() >= tokensAmount, "TokenSale: not enough tokens");
         token.transfer(_msgSender(), tokensAmount);
     }
