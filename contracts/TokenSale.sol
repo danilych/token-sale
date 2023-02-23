@@ -16,14 +16,38 @@ contract TokenSale is Ownable {
 
     uint256 public maxAllocation;
 
-    constructor(address token_, address paymentToken_, uint256 price_, uint256 maxAllocation_) {
+    bool public isPaused;
+
+    constructor(
+        address token_,
+        address paymentToken_,
+        uint256 price_,
+        uint256 maxAllocation_
+    ) {
         token = IERC20(token_);
         paymentToken = IERC20(paymentToken_);
         price = price_;
         maxAllocation = maxAllocation_;
+        isPaused = false;
     }
 
-    function getTokensBalance() public view returns(uint256 balance) {
+    function buy(uint256 amount) external payable {
+        require(isPaused == false, "TokenSale: sale is not active at that moment");
+        require(getAllowance() >= amount, "TokenSale: not approved");
+        paymentToken.safeTransferFrom(_msgSender(), address(this), amount);
+        uint256 tokensAmount = amount / price;
+        require(
+            tokensAmount <= maxAllocation,
+            "TokenSale: you try buy more than max allocation"
+        );
+        require(
+            getTokensBalance() >= tokensAmount,
+            "TokenSale: not enough tokens"
+        );
+        token.safeTransfer(_msgSender(), tokensAmount);
+    }
+
+    function getTokensBalance() public view returns (uint256 balance) {
         balance = token.balanceOf(address(this));
     }
 
@@ -45,20 +69,19 @@ contract TokenSale is Ownable {
 
     function withdrawEth() external onlyOwner {
         payable(owner()).transfer(address(this).balance);
-    } 
+    }
 
     receive() external payable {}
 
-    function getAllowance() public view returns(uint256 value) {
+    function getAllowance() public view returns (uint256 value) {
         return value = paymentToken.allowance(_msgSender(), address(this));
     }
 
-    function buy(uint256 amount) external payable {
-        require(getAllowance() >= amount, "TokenSale: not approved");
-        paymentToken.safeTransferFrom(_msgSender(), address(this), amount);
-        uint256 tokensAmount = amount / price;
-        require(tokensAmount <= maxAllocation, "TokenSale: you try buy more than max allocation");
-        require(getTokensBalance() >= tokensAmount, "TokenSale: not enough tokens");
-        token.safeTransfer(_msgSender(), tokensAmount);
+    function pauseSale() external onlyOwner {
+        isPaused = true;
+    }
+
+    function startSale() external onlyOwner {
+        isPaused = false;
     }
 }
