@@ -2,17 +2,23 @@
 pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+// import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/TokenTimelock.sol";
 
 contract TokenSale is Ownable {
+    using SafeERC20 for IERC20;
+
+    IERC20 public paymentToken;
+
     IERC20 public token;
 
     uint256 public price;
 
     uint256 public maxAllocation;
 
-    constructor(address token_, uint256 price_, uint256 maxAllocation_) {
+    constructor(address token_, address paymentToken_, uint256 price_, uint256 maxAllocation_) {
         token = IERC20(token_);
+        paymentToken = IERC20(paymentToken_);
         price = price_;
         maxAllocation = maxAllocation_;
     }
@@ -43,11 +49,16 @@ contract TokenSale is Ownable {
 
     receive() external payable {}
 
-    function buy() external payable {
-        require(msg.value >= price, "TokenSale: Not enought ether");
-        uint256 tokensAmount = msg.value / price;
+    function getAllowance() public view returns(uint256 value) {
+        return value = paymentToken.allowance(_msgSender(), address(this));
+    }
+
+    function buy(uint256 amount) external payable {
+        require(getAllowance() >= amount, "TokenSale: not approved");
+        paymentToken.safeTransferFrom(_msgSender(), address(this), amount);
+        uint256 tokensAmount = amount / price;
         require(tokensAmount <= maxAllocation, "TokenSale: you try buy more than max allocation");
         require(getTokensBalance() >= tokensAmount, "TokenSale: not enough tokens");
-        token.transfer(_msgSender(), tokensAmount);
+        token.safeTransfer(_msgSender(), tokensAmount);
     }
 }
