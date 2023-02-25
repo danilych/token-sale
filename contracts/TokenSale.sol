@@ -18,6 +18,10 @@ contract TokenSale is Ownable {
 
     bool public isPaused;
 
+    uint256 public countOfSales;
+
+    mapping(uint256 => mapping(address => uint256)) public allocations;
+
     constructor(
         address token_,
         address paymentToken_,
@@ -32,18 +36,31 @@ contract TokenSale is Ownable {
     }
 
     function buy(uint256 amount) external payable {
-        require(isPaused == false, "TokenSale: sale is not active at that moment");
+        require(
+            isPaused == false,
+            "TokenSale: sale is not active at that moment"
+        );
+
+        // require(allocations[countOfSales][_msgSender()] < )
+
         require(getAllowance() >= amount, "TokenSale: not approved");
+
         paymentToken.safeTransferFrom(_msgSender(), address(this), amount);
+
         uint256 tokensAmount = amount / price;
+
         require(
             tokensAmount <= maxAllocation,
             "TokenSale: you try buy more than max allocation"
         );
+
         require(
             getTokensBalance() >= tokensAmount,
             "TokenSale: not enough tokens"
         );
+
+        allocations[countOfSales][_msgSender()] += amount;
+
         token.safeTransfer(_msgSender(), tokensAmount);
     }
 
