@@ -1,6 +1,14 @@
-import Head from 'next/head'
+import Head from "next/head";
+import Button from "@mui/material/Button";
+import { useState } from "react";
+import { ethers } from "ethers";
+import { connectWallet } from "@/web3/connect-wallet";
+import { Chip } from "@mui/material";
+import Link from "next/link";
 
 export default function Home() {
+  const [account, setAccount] = useState<string>("0x0000");
+
   return (
     <>
       <Head>
@@ -10,10 +18,18 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main>
-        <div className="bg-slate-600">
-          
+        <div className="bg-slate-900 w-full h-screen flex items-center justify-center">
+          <h4 className="absolute top-6 left-6 text-white">Your address: {account}</h4>
+          <Button
+            className="absolute top-6 right-6"
+            variant="outlined"
+            onClick={connectWallet}
+          >
+            Connect wallet
+          </Button>
+          <div className="w-[450px] h-[300px] bg-slate-600 rounded-[18px]"></div>
         </div>
       </main>
     </>
-  )
+  );
 }
