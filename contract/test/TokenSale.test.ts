@@ -13,7 +13,7 @@ describe("TokenSale", function () {
     it("revert if not owner try change rate", async () => {
       const { alice, contract } = await tokenSale.setup();
 
-      await expect(contract.connect(alice).changeRate(4)).to.be.revertedWith(
+      await expect(contract.connect(alice).changeTokenPrice(4)).to.be.revertedWith(
         "Ownable: caller is not the owner"
       );
     });
@@ -119,5 +119,22 @@ describe("TokenSale", function () {
         "TokenSale: you try buy more than max allocation"
       );
     });
+
+    it("reverts when user try buy second time and it is more than one allocation", async()=>{
+      const { alice, contract } = await tokenSale.setup();
+
+      await expect(contract.connect(alice).buy(500)).to.be.not.revertedWith;
+
+      await expect(contract.connect(alice).buy(600)).to.be.revertedWith("TokenSale: you try buy more than max allocation");
+
+    })
+
+    it("user buy tokens two times", async()=>{
+      const { alice, contract } = await tokenSale.setup();
+
+      await expect(contract.connect(alice).buy(500)).to.be.not.revertedWith;
+
+      await expect(contract.connect(alice).buy(500)).to.be.not.revertedWith;
+    })
   });
 });

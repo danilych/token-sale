@@ -2,8 +2,8 @@
 pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-// import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/utils/TokenTimelock.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 contract TokenSale is Ownable {
     using SafeERC20 for IERC20;
@@ -18,9 +18,7 @@ contract TokenSale is Ownable {
 
     bool public isPaused;
 
-    uint256 public countOfSales;
-
-    mapping(uint256 => mapping(address => uint256)) public allocations;
+    mapping(address => uint256) public allocations;
 
     constructor(
         address token_,
@@ -35,17 +33,17 @@ contract TokenSale is Ownable {
         isPaused = false;
     }
 
+    //***************Domain***************
+
     function buy(uint256 amount) external payable {
+        address sender_ = _msgSender();
+
+        require(!isPaused, "TokenSale: sale is not active at that moment");
+
         require(
-            isPaused == false,
-            "TokenSale: sale is not active at that moment"
+            (allocations[sender_] + amount) <= maxAllocation,
+            "TokenSale: you try buy more than max allocation"
         );
-
-        // require(allocations[countOfSales][_msgSender()] < )
-
-        require(getAllowance() >= amount, "TokenSale: not approved");
-
-        paymentToken.safeTransferFrom(_msgSender(), address(this), amount);
 
         uint256 tokensAmount = amount / price;
 
@@ -59,10 +57,14 @@ contract TokenSale is Ownable {
             "TokenSale: not enough tokens"
         );
 
-        allocations[countOfSales][_msgSender()] += amount;
+        paymentToken.safeTransferFrom(sender_, address(this), amount);
 
-        token.safeTransfer(_msgSender(), tokensAmount);
+        allocations[sender_] += amount;
+
+        token.safeTransfer(sender_, tokensAmount);
     }
+
+    //***************Utils***************
 
     function getTokensBalance() public view returns (uint256 balance) {
         balance = token.balanceOf(address(this));
@@ -76,12 +78,12 @@ contract TokenSale is Ownable {
         maxAllocation = maxAllocation_;
     }
 
-    function changeRate(uint256 price_) external onlyOwner {
+    function changeTokenPrice(uint256 price_) external onlyOwner {
         price = price_;
     }
 
     function withdrawTokens() external onlyOwner {
-        token.transfer(owner(), getTokensBalance());
+        token.safeTransfer(_msgSender(), getTokensBalance());
     }
 
     function withdrawEth() external onlyOwner {
@@ -89,10 +91,6 @@ contract TokenSale is Ownable {
     }
 
     receive() external payable {}
-
-    function getAllowance() public view returns (uint256 value) {
-        return value = paymentToken.allowance(_msgSender(), address(this));
-    }
 
     function pauseSale() external onlyOwner {
         isPaused = true;
