@@ -39,9 +39,8 @@ export default function Home() {
           <h4 className="absolute top-6 left-6 text-blue-600">
             Your address: {account}
           </h4>
-          <div>
+          <div className="absolute top-6 right-6">
             <Button
-              className="absolute top-6 right-6"
               variant="outlined"
               onClick={connectWallet}
             >
