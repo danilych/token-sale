@@ -39,7 +39,7 @@ export default function Home() {
           <h4 className="absolute top-6 left-6 text-blue-600">
             Your address: {account}
           </h4>
-          <>
+          <div>
             <Button
               className="absolute top-6 right-6"
               variant="outlined"
@@ -47,7 +47,7 @@ export default function Home() {
             >
               Connect wallet
             </Button>
-          </>
+          </div>
 
           <div className="w-[450px] h-[300px] text-center border-[1px] border-blue-700 rounded-[18px]">
             {!isConnected ? (
