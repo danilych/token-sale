@@ -36,15 +36,9 @@ export default function Home() {
       </Head>
       <main>
         <div className="bg-black w-full h-screen flex items-center justify-center">
-          <h4 className="absolute top-6 left-6 text-blue-600">
-            Your address: {account}
-          </h4>
           <div className="absolute top-6 right-6">
-            <Button
-              variant="outlined"
-              onClick={connectWallet}
-            >
-              Connect wallet
+            <Button variant="outlined" onClick={connectWallet}>
+              {!isConnected ? "Connect wallet" : account}
             </Button>
           </div>
 
@@ -54,9 +48,23 @@ export default function Home() {
                 Please connect your wallet
               </h1>
             ) : (
-              <div>
-                {/* <TextField className="" id="outlined-basic" label="Value in BNB" variant="outlined" />
-                <Button variant="contained" color="secondary">Buy</Button> */}
+              <div className="relative h-full">
+                <div className="flex flex-col gap-4 my-16 mx-8 text-center">
+                  <input
+                    className="border-[1px] text-center text-blue-600 border-blue-600 h-10 rounded-sm bg-transparent px-5"
+                    placeholder="Amount in BNB"
+                    type="text"
+                  />
+                  <Button
+                    className="border-[1px] border-blue-600"
+                    variant="contained"
+                  >
+                    Buy
+                  </Button>
+                </div>
+                <h4 className="absolute bottom-16 left-3 text-blue-600">
+                  Your balance: 0.89BNB
+                </h4>
               </div>
             )}
           </div>
