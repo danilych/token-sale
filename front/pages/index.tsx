@@ -2,7 +2,6 @@ import Head from "next/head";
 import Button from "@mui/material/Button";
 import { useState } from "react";
 import { ethers } from "ethers";
-import { TextField } from "@mui/material";
 
 export default function Home() {
   const [account, setAccount] = useState("0x0000");
@@ -41,32 +40,48 @@ export default function Home() {
               {!isConnected ? "Connect wallet" : account}
             </Button>
           </div>
+          <div className="flex flex-row gap-6">
+            <div className="w-[450px] flex flex-col gap-8 relative h-[300px] text-center border-[1px] border-blue-700 rounded-[18px]">
+              <h4 className="mt-8 text-xl text-blue-600">
+                Your balance in BNB: 0.89BNB
+              </h4>
 
-          <div className="w-[450px] h-[300px] text-center border-[1px] border-blue-700 rounded-[18px]">
-            {!isConnected ? (
-              <h1 className="text-center text-blue-600 text-3xl mt-[30%] justify-center">
-                Please connect your wallet
-              </h1>
-            ) : (
-              <div className="relative h-full">
-                <div className="flex flex-col gap-4 my-16 mx-8 text-center">
-                  <input
-                    className="border-[1px] text-center text-blue-600 border-blue-600 h-10 rounded-sm bg-transparent px-5"
-                    placeholder="Amount in BNB"
-                    type="text"
-                  />
-                  <Button
-                    className="border-[1px] border-blue-600"
-                    variant="contained"
-                  >
-                    Buy
-                  </Button>
+              <h4 className="text-xl text-blue-600">
+                1 token = 0.0001 BNB
+              </h4>
+
+              <h4 className="text-xl text-blue-600">
+                Max allocation 2 BNB
+              </h4>
+
+              <h4 className="text-xl text-blue-600">
+                Your balance: 0 tokens
+              </h4>
+            </div>
+
+            <div className="w-[450px] h-[300px] text-center border-[1px] border-blue-700 rounded-[18px]">
+              {!isConnected ? (
+                <h1 className="text-center text-blue-600 text-3xl mt-[30%] justify-center">
+                  Please connect your wallet
+                </h1>
+              ) : (
+                <div className="relative h-full">
+                  <div className="flex flex-col gap-4 my-16 mx-8 text-center">
+                    <input
+                      className="border-[1px] text-center text-blue-600 border-blue-600 h-10 rounded-sm bg-transparent px-5"
+                      placeholder="Amount in BNB"
+                      type="text"
+                    />
+                    <Button
+                      className="border-[1px] border-blue-600"
+                      variant="contained"
+                    >
+                      Buy
+                    </Button>
+                  </div>
                 </div>
-                <h4 className="absolute bottom-16 left-3 text-blue-600">
-                  Your balance: 0.89BNB
-                </h4>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
       </main>
