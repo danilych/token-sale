@@ -8,13 +8,13 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 contract TokenSale is Ownable {
     using SafeERC20 for IERC20;
 
-    IERC20 public paymentToken;
-
     IERC20 public token;
 
     uint256 public price;
 
     uint256 public maxAllocation;
+
+    uint256 public tokensAmount;
 
     bool public isPaused;
 
@@ -22,12 +22,12 @@ contract TokenSale is Ownable {
 
     constructor(
         address token_,
-        address paymentToken_,
         uint256 price_,
-        uint256 maxAllocation_
+        uint256 maxAllocation_,
+        uint256 tokensAmount_
     ) {
         token = IERC20(token_);
-        paymentToken = IERC20(paymentToken_);
+        tokensAmount = tokensAmount_;
         price = price_;
         maxAllocation = maxAllocation_;
         isPaused = false;
@@ -35,33 +35,39 @@ contract TokenSale is Ownable {
 
     //***************Domain***************
 
-    function buy(uint256 amount) external payable {
+    function buy() external payable {
         address sender_ = _msgSender();
 
+        uint256 amount = msg.value / price;
+
         require(!isPaused, "TokenSale: sale is not active at that moment");
+
+        require(amount > tokensAmount, "TokenSale: contract doesn't has this amount of tokens");
+
+        require(msg.value < price, "TokenSale: you try buy less than one token");
+
+        require(msg.value == 0, "TokenSale: you try send zero funds");
 
         require(
             (allocations[sender_] + amount) <= maxAllocation,
             "TokenSale: you try buy more than max allocation"
         );
 
-        uint256 tokensAmount = amount / price;
-
         require(
-            tokensAmount <= maxAllocation,
+            amount <= maxAllocation,
             "TokenSale: you try buy more than max allocation"
         );
 
         require(
-            getTokensBalance() >= tokensAmount,
+            getTokensBalance() >= amount,
             "TokenSale: not enough tokens"
         );
 
-        paymentToken.safeTransferFrom(sender_, address(this), amount);
-
         allocations[sender_] += amount;
 
-        token.safeTransfer(sender_, tokensAmount);
+        tokensAmount -= amount;
+
+        token.safeTransfer(sender_, amount);
     }
 
     //***************Utils***************
