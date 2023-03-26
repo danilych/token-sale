@@ -1,29 +1,79 @@
 import Head from "next/head";
 import Button from "@mui/material/Button";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ethers } from "ethers";
+import auctionArtifact from '../web3/abi/tokenSale.json'
+import dotenv from  'dotenv'
 
 export default function Home() {
+  // dotenv.config()
+
   const [account, setAccount] = useState("0x0000");
 
   const [isConnected, setIsConected] = useState(false);
 
-  const connectWallet = async () => {
+  const [tokenBalance, setTokenBalance] = useState(0);
+
+  let provider: any;
+
+  let signer: any;
+
+  let contract: any;
+
+  let contractWithSigner: any;
+
+  useEffect(() => { 
+    
+   });
+
+
+  async function connectWallet() {
     if (window.ethereum == null) {
       console.log("MetaMask not installed");
     } else {
       try {
-        const provider = new ethers.BrowserProvider(window.ethereum);
+        provider = new ethers.providers.Web3Provider(window.ethereum);
+        
+        const address = await provider.send("eth_requestAccounts", []);
 
-        const signer = await provider.getSigner();
+        signer = provider.getSigner();
+
+        const contractAddress = process.env.CONTRACT_ADDRESS as string;
+
+        console.log(contractAddress)
+
+        contract = new ethers.Contract(contractAddress, auctionArtifact, signer );
+
+        contractWithSigner = contract.connect(signer);
+
+        // const balance = await contractWithSigner.getTokensBalance();
+
+        // setTokenBalance(balance);
+
+        await contract.changeTokenPrice(10000000);
 
         setIsConected(true);
-        setAccount(signer.address);
+        setAccount(address[0]);
+
+        console.log(signer);
+        console.log(provider);
+
+        // contract.changeTokenPrice(1000);
+
       } catch (error) {
         console.log("Error connection...");
+        console.log(error);
       }
     }
   };
+
+  // const contractAddress = process.env.CONTRACT;
+
+  // const balance = contract.balanceOf("ethers.eth")
+
+  // const price = daiContract.price();
+
+  // console.log(balance);
 
   return (
     <>
@@ -55,7 +105,7 @@ export default function Home() {
               </h4>
 
               <h4 className="text-xl text-blue-600">
-                Your balance: 0 tokens
+                Your balance: {tokenBalance} tokens
               </h4>
             </div>
 

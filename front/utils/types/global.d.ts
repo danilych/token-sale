@@ -8,3 +8,9 @@ declare global {
     ethereum?: ExternalProvider
   }
 }
+
+declare var process : {
+  env: {
+    NODE_ENV: string
+  }
+}
