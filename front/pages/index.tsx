@@ -2,17 +2,22 @@ import Head from "next/head";
 import Button from "@mui/material/Button";
 import { useEffect, useState } from "react";
 import { ethers } from "ethers";
-import auctionArtifact from '../web3/abi/tokenSale.json'
-import dotenv from  'dotenv'
+import auctionArtifact from "../web3/abi/tokenSale.json";
 
 export default function Home() {
-  // dotenv.config()
-
   const [account, setAccount] = useState("0x0000");
 
-  const [isConnected, setIsConected] = useState(false);
+  const [isConnected, setIsConnected] = useState(false);
 
   const [tokenBalance, setTokenBalance] = useState(0);
+
+  const [bnbBalance, setBnbBalance] = useState(0);
+
+  const [price, setPrice] = useState(0);
+
+  const [maxAllocation, setMaxAllocation] = useState(0);
+
+  const weiToBnb = 1000000000000000000;
 
   let provider: any;
 
@@ -22,10 +27,9 @@ export default function Home() {
 
   let contractWithSigner: any;
 
-  useEffect(() => { 
-    
-   });
+  useEffect(() => {
 
+  });
 
   async function connectWallet() {
     if (window.ethereum == null) {
@@ -33,39 +37,48 @@ export default function Home() {
     } else {
       try {
         provider = new ethers.providers.Web3Provider(window.ethereum);
-        
+
         const address = await provider.send("eth_requestAccounts", []);
+
+        setAccount(address[0]);
 
         signer = provider.getSigner();
 
-        const contractAddress = process.env.CONTRACT_ADDRESS as string;
+        const contractAddress = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS?.toString();
 
-        console.log(contractAddress)
-
-        contract = new ethers.Contract(contractAddress, auctionArtifact, signer );
+        contract = new ethers.Contract(
+          contractAddress!,
+          auctionArtifact,
+          signer
+        );
 
         contractWithSigner = contract.connect(signer);
 
-        // const balance = await contractWithSigner.getTokensBalance();
+        const tokenPrice = await contract.price();
 
-        // setTokenBalance(balance);
+        const allocation = await contract.maxAllocation();
 
-        await contract.changeTokenPrice(10000000);
+        const bal = await provider.getBalance(account.toString());
+      
+        const tBalance = await contractWithSigner.getTokensBalance();    
+        
+        setMaxAllocation((allocation.toString()) / weiToBnb);
+        setPrice((tokenPrice.toNumber()) / weiToBnb);
+        setBnbBalance((bal.toString()) / weiToBnb);
+        setTokenBalance(tBalance.toString() / weiToBnb);
 
-        setIsConected(true);
-        setAccount(address[0]);
+        setIsConnected(true);
 
         console.log(signer);
         console.log(provider);
 
         // contract.changeTokenPrice(1000);
-
       } catch (error) {
         console.log("Error connection...");
         console.log(error);
       }
     }
-  };
+  }
 
   // const contractAddress = process.env.CONTRACT;
 
@@ -93,16 +106,12 @@ export default function Home() {
           <div className="flex flex-row gap-6">
             <div className="w-[450px] flex flex-col gap-8 relative h-[300px] text-center border-[1px] border-blue-700 rounded-[18px]">
               <h4 className="mt-8 text-xl text-blue-600">
-                Your balance in BNB: 0.89BNB
+                Your balance in BNB: {bnbBalance}BNB
               </h4>
 
-              <h4 className="text-xl text-blue-600">
-                1 token = 0.0001 BNB
-              </h4>
+              <h4 className="text-xl text-blue-600">1 token = {price} BNB</h4>
 
-              <h4 className="text-xl text-blue-600">
-                Max allocation 2 BNB
-              </h4>
+              <h4 className="text-xl text-blue-600">Max allocation {maxAllocation} BNB</h4>
 
               <h4 className="text-xl text-blue-600">
                 Your balance: {tokenBalance} tokens
