@@ -1,11 +1,14 @@
 import Head from "next/head";
 import Button from "@mui/material/Button";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ethers } from "ethers";
-import auctionArtifact from "../web3/abi/tokenSale.json";
+import auctionArtifact from "../web3/abi/token-sale.json";
+import { BigNumber } from "ethers";
 
 export default function Home() {
   const [account, setAccount] = useState("0x0000");
+
+  const amountToBuy: any = useRef(null);
 
   const [isConnected, setIsConnected] = useState(false);
 
@@ -17,7 +20,7 @@ export default function Home() {
 
   const [maxAllocation, setMaxAllocation] = useState(0);
 
-  const weiToBnb = 1000000000000000000;
+  const weiToBnb: any = 1000000000000000000;
 
   let provider: any;
 
@@ -25,11 +28,9 @@ export default function Home() {
 
   let contract: any;
 
-  let contractWithSigner: any;
+  const [contractWithSigner, setContractWithSigner]: any = useState(null);
 
-  useEffect(() => {
-
-  });
+  useEffect(() => {});
 
   async function connectWallet() {
     if (window.ethereum == null) {
@@ -45,25 +46,29 @@ export default function Home() {
         signer = provider.getSigner();
 
         contract = new ethers.Contract(
-          "0xa4882be06959131CC2d590ADd6C892F3371D6fAE",
-          auctionArtifact,
-          signer
+          auctionArtifact.address,
+          auctionArtifact.abi,
+          provider
         );
 
-        contractWithSigner = contract.connect(signer);
+        const WithSigner = contract.connect(signer);
 
-        const tokenPrice = await contract.price();
+        setContractWithSigner(WithSigner);
 
-        const allocation = await contract.maxAllocation();
+        console.log("contract:", WithSigner);
 
-        const bal = await provider.getBalance(account.toString());
-      
-        const tBalance = await contractWithSigner.getTokensBalance();    
-        
-        setMaxAllocation((allocation.toString()) / weiToBnb);
-        setPrice((tokenPrice.toNumber()) / weiToBnb);
-        setBnbBalance((bal.toString()) / weiToBnb);
-        setTokenBalance(tBalance.toString() / weiToBnb);
+        // const tokenPrice = await contract.price();
+
+        // const allocation = await contract.maxAllocation();
+
+        // const bal = await provider.getBalance(account.toString());
+
+        // const tBalance = await contractWithSigner.getTokensBalance();
+
+        // setMaxAllocation(allocation.toString() / weiToBnb);
+        // setPrice(tokenPrice.toNumber() / weiToBnb);
+        // setBnbBalance(bal.toString() / weiToBnb);
+        // setTokenBalance(tBalance.toString() / weiToBnb);
 
         setIsConnected(true);
 
@@ -78,13 +83,21 @@ export default function Home() {
     }
   }
 
-  // const contractAddress = process.env.CONTRACT;
+  async function buy(event: any) {
+    event.preventDefault();
 
-  // const balance = contract.balanceOf("ethers.eth")
+    const dai = 0.02;
 
-  // const price = daiContract.price();
+    console.log(dai);
 
-  // console.log(balance);
+    const overrides = {
+      value: ethers.utils.parseUnits(dai.toString(), 18), //sending one ether
+      gasLimit: 110000, //optional
+    };
+    // const options = {value: ethers.utils.parseEther(amountToBuy)}
+
+    await contractWithSigner.buy(overrides);
+  }
 
   return (
     <>
@@ -109,7 +122,9 @@ export default function Home() {
 
               <h4 className="text-xl text-blue-600">1 token = {price} BNB</h4>
 
-              <h4 className="text-xl text-blue-600">Max allocation {maxAllocation} BNB</h4>
+              <h4 className="text-xl text-blue-600">
+                Max allocation {maxAllocation} BNB
+              </h4>
 
               <h4 className="text-xl text-blue-600">
                 Your balance: {tokenBalance} tokens
@@ -124,17 +139,21 @@ export default function Home() {
               ) : (
                 <div className="relative h-full">
                   <div className="flex flex-col gap-4 my-16 mx-8 text-center">
-                    <input
-                      className="border-[1px] text-center text-blue-600 border-blue-600 h-10 rounded-sm bg-transparent px-5"
-                      placeholder="Amount in BNB"
-                      type="text"
-                    />
-                    <Button
-                      className="border-[1px] border-blue-600"
-                      variant="contained"
-                    >
-                      Buy
-                    </Button>
+                    <form onSubmit={buy}>
+                      <input
+                        className="border-[1px] text-center text-blue-600 border-blue-600 h-10 rounded-sm bg-transparent px-5"
+                        placeholder="Amount in BNB"
+                        type="text"
+                        ref={amountToBuy}
+                      />
+                      <Button
+                        className="border-[1px] border-blue-600"
+                        variant="contained"
+                        type="submit"
+                      >
+                        Buy
+                      </Button>
+                    </form>
                   </div>
                 </div>
               )}
