@@ -13,7 +13,7 @@ export class TokenSaleContract {
 
     this.contract = await (
       await ethers.getContractFactory("TokenSale")
-    ).deploy(token.address, paymentToken.address, 1, 1000);
+    ).deploy(token.address, 1, 1000);
 
     await paymentToken.transfer(alice.address, 5000);
     await paymentToken.connect(alice).approve(this.contract.address, ethers.constants.MaxUint256);

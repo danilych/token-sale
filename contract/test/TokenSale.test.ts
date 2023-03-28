@@ -73,7 +73,7 @@ describe("TokenSale", function () {
     it("user buy tokens", async () => {
       const { alice, contract, token } = await tokenSale.setup();
 
-      await expect(contract.connect(alice).buy(100)).to.changeTokenBalance(
+      await expect(contract.connect(alice).buy({value: 100})).to.changeTokenBalance(
         token,
         alice.address,
         100
@@ -83,8 +83,7 @@ describe("TokenSale", function () {
     it("shop get payments", async () => {
       const { alice, contract, paymentToken } = await tokenSale.setup();
 
-      await expect(contract.connect(alice).buy(100)).to.changeTokenBalance(
-        paymentToken,
+      await expect(contract.connect(alice).buy({value: 100})).to.changeEtherBalance(
         contract.address,
         100
       );
@@ -95,7 +94,7 @@ describe("TokenSale", function () {
 
       await contract.pauseSale();
 
-      await expect(contract.connect(alice).buy(100)).to.be.revertedWith(
+      await expect(contract.connect(alice).buy({value: 100})).to.be.revertedWith(
         "TokenSale: sale is not active at that moment"
       );
     });
@@ -107,7 +106,7 @@ describe("TokenSale", function () {
 
       await contract.startSale();
 
-      await expect(contract.connect(alice).buy(100)).to.be.not.revertedWith(
+      await expect(contract.connect(alice).buy({value: 100})).to.be.not.revertedWith(
         "TokenSale: sale is not active at that moment"
       );
     });
@@ -115,7 +114,7 @@ describe("TokenSale", function () {
     it("reverts when user try buy more than max allocation", async () => {
       const { alice, contract } = await tokenSale.setup();
 
-      await expect(contract.connect(alice).buy(1001)).to.be.revertedWith(
+      await expect(contract.connect(alice).buy({value: 1001})).to.be.revertedWith(
         "TokenSale: you try buy more than max allocation"
       );
     });
@@ -123,18 +122,18 @@ describe("TokenSale", function () {
     it("reverts when user try buy second time and it is more than one allocation", async()=>{
       const { alice, contract } = await tokenSale.setup();
 
-      await expect(contract.connect(alice).buy(500)).to.be.not.revertedWith;
+      await expect(contract.connect(alice).buy({value: 500})).to.be.not.revertedWith;
 
-      await expect(contract.connect(alice).buy(600)).to.be.revertedWith("TokenSale: you try buy more than max allocation");
+      await expect(contract.connect(alice).buy({value: 600})).to.be.revertedWith("TokenSale: you try buy more than max allocation");
 
     })
 
     it("user buy tokens two times", async()=>{
       const { alice, contract } = await tokenSale.setup();
 
-      await expect(contract.connect(alice).buy(500)).to.be.not.revertedWith;
+      await expect(contract.connect(alice).buy({value: 500})).to.be.not.revertedWith;
 
-      await expect(contract.connect(alice).buy(500)).to.be.not.revertedWith;
+      await expect(contract.connect(alice).buy({value: 500})).to.be.not.revertedWith;
     })
   });
 });

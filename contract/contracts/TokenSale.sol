@@ -14,8 +14,6 @@ contract TokenSale is Ownable {
 
     uint256 public maxAllocation;
 
-    uint256 public tokensAmount;
-
     bool public isPaused;
 
     mapping(address => uint256) public allocations;
@@ -23,11 +21,9 @@ contract TokenSale is Ownable {
     constructor(
         address token_,
         uint256 price_,
-        uint256 maxAllocation_,
-        uint256 tokensAmount_
+        uint256 maxAllocation_
     ) {
         token = IERC20(token_);
-        tokensAmount = tokensAmount_;
         price = price_;
         maxAllocation = maxAllocation_;
         isPaused = false;
@@ -42,19 +38,12 @@ contract TokenSale is Ownable {
 
         require(!isPaused, "TokenSale: sale is not active at that moment");
 
-        require(amount > tokensAmount, "TokenSale: contract doesn't has this amount of tokens");
+        require(msg.value > price, "TokenSale: you try buy less than one token");
 
-        require(msg.value < price, "TokenSale: you try buy less than one token");
-
-        require(msg.value == 0, "TokenSale: you try send zero funds");
+        require(msg.value != 0, "TokenSale: you try send zero funds");
 
         require(
-            (allocations[sender_] + amount) <= maxAllocation,
-            "TokenSale: you try buy more than max allocation"
-        );
-
-        require(
-            amount <= maxAllocation,
+            (allocations[sender_] += amount) <= maxAllocation,
             "TokenSale: you try buy more than max allocation"
         );
 
@@ -63,9 +52,7 @@ contract TokenSale is Ownable {
             "TokenSale: not enough tokens"
         );
 
-        allocations[sender_] += amount;
-
-        tokensAmount -= amount;
+        allocations[sender_] += msg.value;
 
         token.safeTransfer(sender_, amount);
     }
@@ -96,7 +83,7 @@ contract TokenSale is Ownable {
         payable(owner()).transfer(address(this).balance);
     }
 
-    receive() external payable {}
+    receive() external payable { }
 
     function pauseSale() external onlyOwner {
         isPaused = true;
