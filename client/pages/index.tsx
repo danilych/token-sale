@@ -88,7 +88,7 @@ export default function Home() {
 
     const dai = 0.02;
 
-    console.log(dai);
+    console.log(amountToBuy);
 
     const overrides = {
       value: ethers.utils.parseUnits(dai.toString(), 18), //sending one ether
@@ -139,7 +139,7 @@ export default function Home() {
               ) : (
                 <div className="relative h-full">
                   <div className="flex flex-col gap-4 my-16 mx-8 text-center">
-                    <form onSubmit={buy}>
+                    <form onSubmit={buy} className="flex my-12 flex-col gap-4">
                       <input
                         className="border-[1px] text-center text-blue-600 border-blue-600 h-10 rounded-sm bg-transparent px-5"
                         placeholder="Amount in BNB"
