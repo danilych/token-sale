@@ -57,20 +57,35 @@ export default function Home() {
 
         console.log("contract:", WithSigner);
 
-        // const tokenPrice = await contract.price();
+        setIsConnected(true);
 
-        // const allocation = await contract.maxAllocation();
+        const tokenPrice = await contract.price();
+
+        const token = await contract.token();
+
+        console.log("token:" ,token);
+
+        const units = ethers.utils.parseUnits("0.001", 18)
+        console.log("units:", units)
+
+        console.log("token price:" ,tokenPrice);
+
+        const allocation = await contract.maxAllocation();
+
+        console.log("allocation:", allocation);
+
+        // await WithSigner.withdrawEth();
+
+        // await WithSigner.changeToken("0x5aD9A7795e2bF86eeDE2148D60120fc8cE9c41a3");
 
         // const bal = await provider.getBalance(account.toString());
 
         // const tBalance = await contractWithSigner.getTokensBalance();
 
-        // setMaxAllocation(allocation.toString() / weiToBnb);
-        // setPrice(tokenPrice.toNumber() / weiToBnb);
+        setMaxAllocation(allocation.toString() / weiToBnb);
+        setPrice(tokenPrice.toNumber() / weiToBnb);
         // setBnbBalance(bal.toString() / weiToBnb);
         // setTokenBalance(tBalance.toString() / weiToBnb);
-
-        setIsConnected(true);
 
         console.log(signer);
         console.log(provider);
@@ -86,7 +101,7 @@ export default function Home() {
   async function buy(event: any) {
     event.preventDefault();
 
-    const dai = 0.02;
+    const dai = 0.01;
 
     console.log(amountToBuy);
 
