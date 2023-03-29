@@ -11,7 +11,7 @@ import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20FlashMint.sol";
 
 contract SaleToken is ERC20, ERC20Burnable, ERC20Snapshot, Ownable, Pausable, ERC20Permit, ERC20Votes, ERC20FlashMint {
-    constructor() ERC20("Kupeebara", "KPB") ERC20Permit("SaleToken") {
+    constructor() ERC20("Kupeebara", "KPB") ERC20Permit("Kupeebara") {
         _mint(msg.sender, 100000 * 10 ** decimals());
     }
 

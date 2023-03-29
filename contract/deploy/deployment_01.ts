@@ -10,7 +10,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   const { address: contractAddress, abi } = await deploy("TokenSale", {
     from: owner,
-    args: [token, ethers.utils.parseEther("0.001"), ethers.utils.parseEther("1")],
+    args: [token, ethers.utils.parseUnits("0.001", 18), ethers.utils.parseUnits("1", 18)],
     log: true,
     autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks
   });

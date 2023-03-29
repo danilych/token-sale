@@ -32,29 +32,27 @@ contract TokenSale is Ownable {
     //***************Domain***************
 
     function buy() external payable {
-        address sender_ = _msgSender();
+        address sender = _msgSender();
 
-        uint256 amount = msg.value / price;
+        uint256 tokensValue = msg.value / price;
 
         require(!isPaused, "TokenSale: sale is not active at that moment");
 
         require(msg.value > price, "TokenSale: you try buy less than one token");
 
-        require(msg.value != 0, "TokenSale: you try send zero funds");
-
         require(
-            (allocations[sender_] += amount) <= maxAllocation,
+            (allocations[sender] + tokensValue) <= maxAllocation,
             "TokenSale: you try buy more than max allocation"
         );
 
         require(
-            getTokensBalance() >= amount,
+            getTokensBalance() >= tokensValue,
             "TokenSale: not enough tokens"
         );
 
-        allocations[sender_] += msg.value;
+        allocations[sender] += msg.value;
 
-        token.safeTransfer(sender_, amount);
+        token.safeTransfer(sender, tokensValue * 10 ** 18);
     }
 
     //***************Utils***************

@@ -64,8 +64,8 @@ const config: HardhatUserConfig = {
       bscTestnet: "0x5E6Fc266E098C241B1a1c5c41b026ADCf66EdE93",
     },
     token: {
-      bsc: "0x87895CdA85658b6301E73F9D01f1a39B14a1f7c4",
-      bscTestnet: "0x87895CdA85658b6301E73F9D01f1a39B14a1f7c4",
+      bsc: "0x5aD9A7795e2bF86eeDE2148D60120fc8cE9c41a3",
+      bscTestnet: "0x5aD9A7795e2bF86eeDE2148D60120fc8cE9c41a3",
     },
   },
   gasReporter: {

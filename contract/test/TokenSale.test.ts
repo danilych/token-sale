@@ -81,13 +81,23 @@ describe("TokenSale", function () {
     });
 
     it("shop get payments", async () => {
-      const { alice, contract, paymentToken } = await tokenSale.setup();
+      const { alice, contract } = await tokenSale.setup();
 
       await expect(contract.connect(alice).buy({value: 100})).to.changeEtherBalance(
         contract.address,
         100
       );
     });
+
+    it("user get a tokens", async () => {
+      const { alice, contract, token } = await tokenSale.setup();
+
+      await expect(contract.connect(alice).buy({value: 100})).to.changeTokenBalance(
+        token,
+        alice,
+        100
+      );
+    })
 
     it("revert if user try buy tokens when sale is paused", async () => {
       const { alice, contract } = await tokenSale.setup();
