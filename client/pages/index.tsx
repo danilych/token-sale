@@ -8,7 +8,7 @@ import { BigNumber } from "ethers";
 export default function Home() {
   const [account, setAccount] = useState("0x0000");
 
-  const amountToBuy: any = useRef(null);
+  const amountToBuy: any = useRef(0);
 
   const [isConnected, setIsConnected] = useState(false);
 
@@ -51,46 +51,28 @@ export default function Home() {
           provider
         );
 
+        // let bal = provider.getBalance(address[0]);
+
+        // bal = bal.toNumber();
+
         const WithSigner = contract.connect(signer);
-
-        setContractWithSigner(WithSigner);
-
-        console.log("contract:", WithSigner);
-
+        
         setIsConnected(true);
-
+        
         const tokenPrice = await contract.price();
-
         const token = await contract.token();
-
-        console.log("token:" ,token);
-
-        const units = ethers.utils.parseUnits("0.001", 18)
-        console.log("units:", units)
-
-        console.log("token price:" ,tokenPrice);
-
+        const units = ethers.utils.parseUnits("0.001", 18);
         const allocation = await contract.maxAllocation();
-
-        console.log("allocation:", allocation);
-
-        // await WithSigner.withdrawEth();
-
-        // await WithSigner.changeToken("0x5aD9A7795e2bF86eeDE2148D60120fc8cE9c41a3");
-
-        // const bal = await provider.getBalance(account.toString());
-
-        // const tBalance = await contractWithSigner.getTokensBalance();
-
+        
+        
+        setContractWithSigner(WithSigner);
+        // setBnbBalance(bal);
         setMaxAllocation(allocation.toString() / weiToBnb);
         setPrice(tokenPrice.toNumber() / weiToBnb);
-        // setBnbBalance(bal.toString() / weiToBnb);
-        // setTokenBalance(tBalance.toString() / weiToBnb);
 
         console.log(signer);
         console.log(provider);
 
-        // contract.changeTokenPrice(1000);
       } catch (error) {
         console.log("Error connection...");
         console.log(error);
@@ -101,9 +83,7 @@ export default function Home() {
   async function buy(event: any) {
     event.preventDefault();
 
-    const dai = 0.01;
-
-    console.log(amountToBuy);
+    const dai = amountToBuy.current.value;
 
     const overrides = {
       value: ethers.utils.parseUnits(dai.toString(), 18), //sending one ether
