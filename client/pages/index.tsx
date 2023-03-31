@@ -3,7 +3,6 @@ import Button from "@mui/material/Button";
 import { useEffect, useRef, useState } from "react";
 import { ethers } from "ethers";
 import auctionArtifact from "../web3/abi/token-sale.json";
-import { BigNumber } from "ethers";
 
 export default function Home() {
   const [account, setAccount] = useState("0x0000");
@@ -51,30 +50,18 @@ export default function Home() {
           provider
         );
 
-        // let bal = provider.getBalance(address[0]);
-
-        // bal = bal.toNumber();
-
         const WithSigner = contract.connect(signer);
-        
-        setIsConnected(true);
-        
         const tokenPrice = await contract.price();
-        const token = await contract.token();
-        const units = ethers.utils.parseUnits("0.001", 18);
         const allocation = await contract.maxAllocation();
         
         
         setContractWithSigner(WithSigner);
-        // setBnbBalance(bal);
         setMaxAllocation(allocation.toString() / weiToBnb);
         setPrice(tokenPrice.toNumber() / weiToBnb);
-
-        console.log(signer);
-        console.log(provider);
-
+        setIsConnected(true);
       } catch (error) {
         console.log("Error connection...");
+
         console.log(error);
       }
     }
@@ -86,10 +73,9 @@ export default function Home() {
     const dai = amountToBuy.current.value;
 
     const overrides = {
-      value: ethers.utils.parseUnits(dai.toString(), 18), //sending one ether
-      gasLimit: 110000, //optional
+      value: ethers.utils.parseUnits(dai.toString(), 18),
+      gasLimit: 110000,
     };
-    // const options = {value: ethers.utils.parseEther(amountToBuy)}
 
     await contractWithSigner.buy(overrides);
   }
@@ -118,7 +104,7 @@ export default function Home() {
               <h4 className="text-xl text-blue-600">1 token = {price} BNB</h4>
 
               <h4 className="text-xl text-blue-600">
-                Max allocation {maxAllocation} BNB
+                Max allocation: {maxAllocation} BNB
               </h4>
 
               <h4 className="text-xl text-blue-600">
