@@ -2,73 +2,54 @@ import Head from "next/head";
 import Button from "@mui/material/Button";
 import { useEffect, useRef, useState } from "react";
 import { ethers } from "ethers";
-import auctionArtifact from "../web3/abi/token-sale.json";
+import tokenSaleArtifact from "../web3/abi/token-sale.json";
+import { Web3Button, Web3Modal } from "@web3modal/react";
+import { ethereumClient } from "./_app";
+import { useAccount, useContract, useProvider, useSigner } from "wagmi";
 
 export default function Home() {
-  const [account, setAccount] = useState("0x0000");
-
   const amountToBuy: any = useRef(0);
 
-  const [isConnected, setIsConnected] = useState(false);
+  const { isConnected } = useAccount();
+
+  const provider = useProvider();
+
+  const contract = useContract({
+    address: tokenSaleArtifact.address,
+    abi: tokenSaleArtifact.abi,
+  });
+
+  const { data: signer } = useSigner();
 
   const [tokenBalance, setTokenBalance] = useState(0);
-
-  const [bnbBalance, setBnbBalance] = useState(0);
 
   const [price, setPrice] = useState(0);
 
   const [maxAllocation, setMaxAllocation] = useState(0);
 
-  const weiToBnb: any = 1000000000000000000;
+  const [isDisplayed, setIsDisplayed] = useState(false);
 
-  let provider: any;
+  useEffect(() => {
+    setIsDisplayed(isConnected);
 
-  let signer: any;
+    console.log(provider);
+  }, [isConnected]);
 
-  let contract: any;
+  // useEffect(() => {
+  //   if (!contract) return;
 
-  const [contractWithSigner, setContractWithSigner]: any = useState(null);
+  //   async function init(contract: any): Promise<void> {
+  //     setPrice(await contract?.price());
+  //   }
 
-  useEffect(() => {});
-
-  async function connectWallet() {
-    if (window.ethereum == null) {
-      console.log("MetaMask not installed");
-    } else {
-      try {
-        provider = new ethers.providers.Web3Provider(window.ethereum);
-
-        const address = await provider.send("eth_requestAccounts", []);
-
-        setAccount(address[0]);
-
-        signer = provider.getSigner();
-
-        contract = new ethers.Contract(
-          auctionArtifact.address,
-          auctionArtifact.abi,
-          provider
-        );
-
-        const WithSigner = contract.connect(signer);
-        const tokenPrice = await contract.price();
-        const allocation = await contract.maxAllocation();
-        
-        
-        setContractWithSigner(WithSigner);
-        setMaxAllocation(allocation.toString() / weiToBnb);
-        setPrice(tokenPrice.toNumber() / weiToBnb);
-        setIsConnected(true);
-      } catch (error) {
-        console.log("Error connection...");
-
-        console.log(error);
-      }
-    }
-  }
+  //   init(contract);
+  //   console.log(price);
+  // }, [contract]);
 
   async function buy(event: any) {
     event.preventDefault();
+
+    const WithSigner = contract!.connect(signer!);
 
     const dai = amountToBuy.current.value;
 
@@ -77,7 +58,7 @@ export default function Home() {
       gasLimit: 110000,
     };
 
-    await contractWithSigner.buy(overrides);
+    await WithSigner.buy(overrides);
   }
 
   return (
@@ -91,14 +72,12 @@ export default function Home() {
       <main>
         <div className="bg-black w-full h-screen flex items-center justify-center">
           <div className="absolute top-6 right-6">
-            <Button variant="outlined" onClick={connectWallet}>
-              {!isConnected ? "Connect wallet" : account}
-            </Button>
+            <Web3Button />
           </div>
           <div className="flex flex-row gap-6">
             <div className="w-[450px] flex flex-col gap-8 relative h-[300px] text-center border-[1px] border-blue-700 rounded-[18px]">
               <h4 className="mt-8 text-xl text-blue-600">
-                Your balance in BNB: {bnbBalance}BNB
+                Your balance in BNB: 0 BNB
               </h4>
 
               <h4 className="text-xl text-blue-600">1 token = {price} BNB</h4>
@@ -113,7 +92,7 @@ export default function Home() {
             </div>
 
             <div className="w-[450px] h-[300px] text-center border-[1px] border-blue-700 rounded-[18px]">
-              {!isConnected ? (
+              {!isDisplayed ? (
                 <h1 className="text-center text-blue-600 text-3xl mt-[30%] justify-center">
                   Please connect your wallet
                 </h1>
@@ -142,6 +121,11 @@ export default function Home() {
           </div>
         </div>
       </main>
+
+      <Web3Modal
+        projectId={process.env.WALLET_CONNECT_ID!}
+        ethereumClient={ethereumClient}
+      />
     </>
   );
 }
