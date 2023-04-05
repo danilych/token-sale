@@ -2,8 +2,7 @@
 const nextConfig = {
   reactStrictMode: true,
   env: {
-    BASE_URL: process.env.NEXT_PUBLIC_SITE_URL,
-    CONTRACT_ADDRESS: process.env.NEXT_PUBLIC_CONTRACT_ADDRESS,
+    WALLET_CONNECT_ID: process.env.WALLET_CONNECT_ID,
   }
 }
 
